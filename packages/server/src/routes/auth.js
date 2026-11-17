@@ -13,6 +13,13 @@ authRouter.post('/register', async (req, res) => {
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'email, password, name required' });
     }
+    // 관리자 여부는 이메일이 ADMIN_EMAIL 목록에 있는지로만 결정된다 (lib/admin.js).
+    // 공개 가입을 열어두면 관리자 이메일을 아는 누구든 먼저 가입해 관리자 권한을
+    // 선점할 수 있으므로, 관리자 이메일은 셀프 가입을 막고
+    // scripts/create-admin.js로 서버에서 직접 생성한다.
+    if (isAdminEmail(email)) {
+      return res.status(403).json({ error: 'ADMIN_REGISTER_DISABLED' });
+    }
     if (String(password).length < 4) {
       return res.status(400).json({ error: 'PASSWORD_TOO_SHORT' });
     }
