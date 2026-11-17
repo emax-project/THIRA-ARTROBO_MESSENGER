@@ -74,7 +74,7 @@ export function useUpdateManager({ hasElectron, electronPlatform, activePanel, s
   };
 
   const handleOpenReleasesPage = () => {
-    window.electronAPI?.openExternal?.('https://github.com/emax-project/MESSAGE/releases/latest');
+    window.electronAPI?.openExternal?.('https://github.com/emax-project/THIRA-ARTROBO_MESSENGER/releases/latest');
   };
 
   const handleQuitAndInstall = async () => {

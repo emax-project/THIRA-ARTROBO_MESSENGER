@@ -1,7 +1,7 @@
 import { getStoredToken, removeStoredToken } from './utils/authSession';
 // 빈 문자열이면 같은 origin 사용(배포 시 같은 서버에서 API·웹 서빙), 없으면 로컬 개발용
 const DEFAULT_BASE =
-  import.meta.env.VITE_API_URL === '' ? '' : (import.meta.env.VITE_API_URL || 'http://203.254.98.92:3001');
+  import.meta.env.VITE_API_URL === '' ? '' : (import.meta.env.VITE_API_URL || 'http://175.123.252.228:3001');
 
 const API_URL_KEY = 'emax_api_url';
 

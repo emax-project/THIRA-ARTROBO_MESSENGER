@@ -47,7 +47,7 @@ export default function Login() {
   const [rememberEmail, setRememberEmail] = useState(remembered.remember);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [serverUrl, setServerUrl] = useState(() => getBaseUrl() || 'http://203.254.98.92:3001');
+  const [serverUrl, setServerUrl] = useState(() => getBaseUrl() || 'http://175.123.252.228:3001');
   const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
 
@@ -148,7 +148,7 @@ export default function Login() {
                 <label className="text-[13px] font-medium text-[#64748b]">서버 주소</label>
                 <UITextInput
                   type="url"
-                  placeholder="http://203.254.98.92:3001"
+                  placeholder="http://175.123.252.228:3001"
                   value={serverUrl}
                   onChange={(e) => setServerUrl(e.target.value)}
                   onBlur={() => { if (serverUrl.trim()) setBaseUrl(serverUrl.trim()); }}
