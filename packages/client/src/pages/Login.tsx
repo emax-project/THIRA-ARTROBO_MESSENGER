@@ -90,7 +90,7 @@ export default function Login() {
 
   return (
     <div className="w-full h-full min-h-0 flex flex-col bg-black">
-      {isElectron && <TitleBar title="EMAX-Hub" isDark />}
+      {isElectron && <TitleBar title="THIRA-ARTROBO" isDark />}
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
         <AuthCard
           title="로그인"

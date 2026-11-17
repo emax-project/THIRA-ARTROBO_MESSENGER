@@ -234,7 +234,7 @@ export function useMainSocket({
       }
       if (payload.userId && String(payload.userId) !== String(myIdRef.current)) {
         const name = payload.userName?.trim() || '누군가';
-        const title = 'EMAX-Hub';
+        const title = 'THIRA-ARTROBO';
         const body = `${name}님이 로그인했습니다.`;
         if (window.electronAPI?.showNotification) {
           window.electronAPI.showNotification(title, body);

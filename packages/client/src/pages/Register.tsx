@@ -57,7 +57,7 @@ export default function Register() {
 
   return (
     <div className="w-full h-full min-h-0 flex flex-col bg-black">
-      {!!window.electronAPI && <TitleBar title="EMAX-Hub" isDark />}
+      {!!window.electronAPI && <TitleBar title="THIRA-ARTROBO" isDark />}
       <div className="flex-1 flex items-center justify-center p-4 overflow-y-auto">
         <AuthCard
           title="계정 만들기"
