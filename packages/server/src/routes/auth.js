@@ -4,10 +4,11 @@ import { prisma } from '../db.js';
 import { authMiddleware, signToken } from '../auth.js';
 import { isAdminEmail } from '../lib/admin.js';
 import { isLocked, recordFailure, recordSuccess } from '../lib/loginAttempts.js';
+import { loginLimiter, registerLimiter } from '../lib/authRateLimit.js';
 
 export const authRouter = Router();
 
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', registerLimiter, async (req, res) => {
   try {
     const { email, password, name } = req.body;
     if (!email || !password || !name) {
@@ -46,7 +47,7 @@ authRouter.post('/register', async (req, res) => {
   }
 });
 
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
