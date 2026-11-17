@@ -1,7 +1,9 @@
 # Windows 서버 자동 배포 스크립트 (Docker 없이 node + NSSM 서비스로 운영하는 서버용)
 #
-# 동작: origin/main에 새 커밋이 있으면 pull -> (lock 변경 시) npm ci -> prisma db push
-#       -> (서버 코드 변경 시) 서비스 재시작 -> /health 확인. 새 커밋이 없으면 아무것도 하지 않는다.
+# 동작: origin/main에 새 커밋이 있으면 pull -> (서버 코드 변경 시) 서비스 중지 -> (lock 변경 시) npm ci
+#       -> prisma db push -> 서비스 시작 -> /health 확인. 새 커밋이 없으면 아무것도 하지 않는다.
+# 주의: Windows에서는 실행 중인 node가 Prisma 엔진 등 네이티브 파일을 잠그므로,
+#       npm ci / prisma generate 는 반드시 서비스를 멈춘 뒤에 실행해야 node_modules가 깨지지 않는다.
 # 로그: <레포>\deploy.log
 #
 # 예약 작업 등록 (관리자 PowerShell, 5분마다):
@@ -53,8 +55,17 @@ try {
   Log "배포 시작: $($old.Substring(0,7)) -> $($new.Substring(0,7))"
   $changed = @(git diff --name-only $old $new)
 
+  $serverChanged = $changed | Where-Object {
+    $_ -like 'packages/server/*' -or $_ -eq 'package-lock.json' -or $_ -eq 'package.json'
+  }
+
   # 로컬 변경이 있으면 --ff-only가 실패해 배포가 중단된다 (서버에서는 코드를 직접 수정하지 않는다)
   Step 'git pull' { git pull --ff-only origin $Branch }
+
+  if ($serverChanged) {
+    # npm ci / prisma generate 가 잠긴 파일과 충돌하지 않도록 먼저 서비스를 멈춘다
+    Step 'service stop' { nssm stop $Service }
+  }
 
   if ($changed -contains 'package-lock.json') {
     Step 'npm ci' { npm ci }
@@ -63,11 +74,8 @@ try {
   Push-Location (Join-Path $Repo 'packages\server')
   try { Step 'prisma db push' { npx prisma db push } } finally { Pop-Location }
 
-  $serverChanged = $changed | Where-Object {
-    $_ -like 'packages/server/*' -or $_ -eq 'package-lock.json' -or $_ -eq 'package.json'
-  }
   if ($serverChanged) {
-    Step 'service restart' { nssm restart $Service }
+    Step 'service start' { nssm start $Service }
     $ok = $false
     for ($i = 0; $i -lt 15; $i++) {
       Start-Sleep -Seconds 2
@@ -75,13 +83,13 @@ try {
         if ((Invoke-WebRequest "http://localhost:$Port/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200) { $ok = $true; break }
       } catch {}
     }
-    if (-not $ok) { Log "WARN: 재시작 후 /health 응답 없음 — server.err.log 확인 필요" ; exit 1 }
+    if (-not $ok) { Log 'WARN: 시작 후 /health 응답 없음 — server.err.log 확인 필요'; exit 1 }
     Log "배포 완료 (서버 재시작, health OK): $($new.Substring(0,7))"
   } else {
     Log "배포 완료 (서버 코드 변경 없음, 재시작 생략): $($new.Substring(0,7))"
   }
 } catch {
-  Log "중단: $($_.Exception.Message)"
+  Log "중단: $($_.Exception.Message) — 서비스가 중지된 상태일 수 있으니 Get-Service $Service 확인"
   exit 1
 } finally {
   Remove-Item $Lock -Force -ErrorAction SilentlyContinue
