@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CSIN-Tech 메신저 — 거래처 GW 서버(192.168.123.210) 배포
+# THIRA-ARTROBO 메신저 — 거래처 GW 서버(192.168.123.210) 배포
 # 사용: 9210 RDP로 서버 접속 후, 이 저장소를 clone/복사한 뒤 실행
 #   cp .env.partner.example .env   # 계정·JWT 채운 뒤
 #   ./scripts/deploy-partner-server.sh
@@ -37,4 +37,4 @@ docker compose exec -T server npm run partner:org:sync:users || \
 echo "==> done"
 echo "사내 확인: curl http://192.168.123.210:3001/"
 echo "사외 확인: curl http://121.143.3.163:3030/health"
-echo "클라이언트: CSIN-Tech-Setup-*.exe (기본 API http://121.143.3.163:3030)"
+echo "클라이언트: THIRA-ARTROBO-Setup-*.exe (기본 API http://121.143.3.163:3030)"

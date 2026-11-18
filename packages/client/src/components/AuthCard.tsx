@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '../utils/cn';
 
-const LOGO_SRC = `${import.meta.env.BASE_URL}csin-logo.png`;
-
 type Props = {
   children: ReactNode;
   title: string;
@@ -10,7 +8,7 @@ type Props = {
   className?: string;
   /** 'flush'는 팝업 카드처럼 보이지 않도록 모서리 둥글림·그림자·여백 없이 창 전체를 채운다 */
   variant?: 'card' | 'flush';
-  /** 멀티테넌트: 입력한 서버 주소가 지정한 회사 로고(없으면 기본 CSIN 로고) */
+  /** 멀티테넌트: 입력한 서버 주소가 지정한 회사 로고(없으면 THIRA-ARTROBO 텍스트) */
   logoUrl?: string;
   /** 멀티테넌트: 입력한 서버 주소가 지정한 회사명 (로고 아래 작게 표시) */
   brandName?: string;
@@ -27,7 +25,11 @@ export function AuthCard({ children, title, subtext, className, variant = 'card'
     >
       <div className="flex flex-col justify-center px-6 py-10 sm:px-8">
         <div className="flex flex-col items-center text-center mb-8">
-          <img src={logoUrl || LOGO_SRC} alt={brandName || 'CSIN Tech'} className="mb-2 h-10 w-auto max-w-[240px] object-contain" />
+          {logoUrl ? (
+            <img src={logoUrl} alt={brandName || 'THIRA-ARTROBO'} className="mb-2 h-10 w-auto max-w-[240px] object-contain" />
+          ) : (
+            <span className="mb-2 text-[22px] font-extrabold tracking-wide text-[#0f172a]">THIRA-ARTROBO</span>
+          )}
           {brandName ? <p className="mb-3 text-[12px] font-medium text-[#64748b]">{brandName}</p> : <div className="mb-3" />}
           <h1 className="brand-title text-xl font-bold text-black">{title}</h1>
           {subtext ? <p className="mt-2 text-sm text-[#334155]">{subtext}</p> : null}

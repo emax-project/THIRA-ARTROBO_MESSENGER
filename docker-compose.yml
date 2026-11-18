@@ -1,5 +1,5 @@
 services:
-  # HTTPS 리버스 프록시. CADDY_DOMAIN(예: msg.csin.kr)으로 들어오는 80/443 요청을
+  # HTTPS 리버스 프록시. CADDY_DOMAIN(예: 175.123.252.228:3001)으로 들어오는 80/443 요청을
   # server 컨테이너로 넘기고, Let's Encrypt 인증서 발급·갱신을 자동으로 처리한다.
   # 전제조건: CADDY_DOMAIN이 이 서버의 공인 IP를 가리키도록 DNS A레코드가 설정돼
   # 있어야 하고, 방화벽에서 80·443 포트가 이 서버로 포워딩돼 있어야 한다
@@ -52,7 +52,7 @@ services:
       # 관리자 이메일(쉼표 구분). 비어 있으면 관리자 기능이 아무에게도 열리지 않는다.
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       UPLOAD_DIR: /app/uploads
-      # 거래처 조직 sync (CSIN-Tech 배포 시 .env 에 PARTNER_* 설정)
+      # 거래처 조직 sync (THIRA-ARTROBO 배포 시 .env 에 PARTNER_* 설정)
       PARTNER_ORG_SOURCE: ${PARTNER_ORG_SOURCE:-off}
       PARTNER_COMPANY_NAME: ${PARTNER_COMPANY_NAME:-CSIN}
       PARTNER_COMPANY_EXTERNAL_CODE: ${PARTNER_COMPANY_EXTERNAL_CODE:-CSIN}

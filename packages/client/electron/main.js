@@ -10,7 +10,7 @@ const { createHash } = require('node:crypto');
 // 만들도록 가장 먼저 설정한다 — app.getPath() 등 어떤 호출보다도 앞서야 한다.
 // (기존 설치본은 %APPDATA%\client 등 옛 폴더를 계속 쓰므로, 업데이트 이후 최초
 // 실행 시 재로그인이 한 번 필요하다 — 서버에 저장된 대화 내용 등은 영향 없음)
-app.setName('CSIN-Tech');
+app.setName('THIRA-ARTROBO');
 
 // 그래픽(GPU) 가속: 기본은 사용. 드라이버 문제로 GPU 프로세스가 반복 종료하는 PC나 사용자가
 // 직접 끈 경우에만 소프트웨어 렌더링으로 내린다(정책은 gpuPolicy.js, 상태는 userData/gpu-state.json).
@@ -351,7 +351,7 @@ function getNotificationHTML(title, body, progressPercent, hasRoomId, iconDataUr
 </head>
 <body>
   <div class="toast">
-    <span class="toast-brand">CSIN Tech</span>
+    <span class="toast-brand">THIRA-ARTROBO</span>
     <div class="toast-row">
       <div class="toast-left">
         ${iconHtml}
@@ -498,22 +498,22 @@ function safeCheckForUpdates() {
   });
   return updateCheckPromise;
 }
-// CSIN-Tech 빌드는 CSINTECH_MESSENGER 저장소에 릴리즈된다 (build.publish와 동일한 저장소 —
+// THIRA-ARTROBO 빌드는 THIRA-ARTROBO_MESSENGER 저장소에 릴리즈된다 (build.publish와 동일한 저장소 —
 // 공개 MESSAGE 저장소를 가리키면 설치파일이 없어 404가 난다. 과거 자동 업데이트 피드 자체는
 // 고쳤지만, 이 수동 다운로드 링크는 그때 같이 안 고쳐져 있었음).
-const RELEASE_DOWNLOAD_BASE = 'https://github.com/emax-project/CSINTECH_MESSENGER/releases/download';
+const RELEASE_DOWNLOAD_BASE = 'https://github.com/emax-project/THIRA-ARTROBO_MESSENGER/releases/download';
 
 function getReleaseDownloadUrl(version) {
   const v = String(version || '').replace(/^v/, '');
-  if (!v) return 'https://github.com/emax-project/CSINTECH_MESSENGER/releases/latest';
+  if (!v) return 'https://github.com/emax-project/THIRA-ARTROBO_MESSENGER/releases/latest';
   if (process.platform === 'darwin') {
     const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
-    return `${RELEASE_DOWNLOAD_BASE}/v${v}/CSIN-Tech-${v}-${arch}.dmg`;
+    return `${RELEASE_DOWNLOAD_BASE}/v${v}/THIRA-ARTROBO-${v}-${arch}.dmg`;
   }
   if (process.platform === 'win32') {
-    return `${RELEASE_DOWNLOAD_BASE}/v${v}/CSIN-Tech-Setup-${v}.exe`;
+    return `${RELEASE_DOWNLOAD_BASE}/v${v}/THIRA-ARTROBO-Setup-${v}.exe`;
   }
-  return `https://github.com/emax-project/CSINTECH_MESSENGER/releases/tag/v${v}`;
+  return `https://github.com/emax-project/THIRA-ARTROBO_MESSENGER/releases/tag/v${v}`;
 }
 
 // 창별 show 핸들러 (Map으로 관리, win 객체에 프로퍼티 직접 부착보다 안전)
@@ -784,7 +784,7 @@ function openChatWindow(roomId) {
     return;
   }
   if (!policyHelpers.canOpenChatWindow(chatWindows.length, maxChatWindows)) {
-    showCustomNotification('CSIN-Tech', `대화창은 최대 ${maxChatWindows}개까지 열 수 있습니다. 다른 창을 닫고 다시 시도해 주세요.`);
+    showCustomNotification('THIRA-ARTROBO', `대화창은 최대 ${maxChatWindows}개까지 열 수 있습니다. 다른 창을 닫고 다시 시도해 주세요.`);
     return;
   }
   createWindow({
@@ -840,7 +840,7 @@ function createTray() {
   const size = process.platform === 'darwin' ? 22 : 16;
   const trayIcon = img.isEmpty() ? null : img.resize({ width: size, height: size });
   tray = new Tray(trayIcon && !trayIcon.isEmpty() ? trayIcon : iconPath);
-  tray.setToolTip('CSIN-Tech');
+  tray.setToolTip('THIRA-ARTROBO');
   const menu = Menu.buildFromTemplate([
     {
       label: '로그아웃',
@@ -1148,7 +1148,7 @@ ipcMain.on('set-max-chat-windows', (_, value) => {
 
 ipcMain.handle('show-notification', (_, { title, body, roomId, icon, imagePreview }) => {
   const n = policyHelpers.maskNotificationIfLocked(
-    { title: title || 'CSIN-Tech', body: body || '', roomId: roomId || null, icon: icon || null, imagePreview: imagePreview || null },
+    { title: title || 'THIRA-ARTROBO', body: body || '', roomId: roomId || null, icon: icon || null, imagePreview: imagePreview || null },
     screenLocked,
   );
   showCustomNotification(n.title, n.body, { roomId: n.roomId, icon: n.icon, imagePreview: n.imagePreview });
@@ -1346,7 +1346,7 @@ ipcMain.handle('fetch-user-avatar', async (_, { userId }) => {
   }
 });
 
-// 업데이트 설치 파일이 쌓이는 폴더 정리 (Windows: %LOCALAPPDATA%\csin-tech-updater\pending).
+// 업데이트 설치 파일이 쌓이는 폴더 정리 (Windows: %LOCALAPPDATA%\thira-artrobo-updater\pending).
 // 이전 버전은 앱 이름이 'client'라 %LOCALAPPDATA%\client-updater 를 썼고 설치 파일(약 166MB)이 그대로 남아 있다.
 // - 현재 폴더: 가장 최근 설치 파일 1개(차등 업데이트 기준)만 남기고 나머지·미완성 파일 삭제
 // - 옛 폴더: 더 이상 쓰이지 않으므로 pending 안의 파일 모두 삭제
@@ -1372,7 +1372,7 @@ async function pruneUpdaterCache() {
       }
     }
   };
-  const cache = path.join(process.env.LOCALAPPDATA, 'csin-tech-updater');
+  const cache = path.join(process.env.LOCALAPPDATA, 'thira-artrobo-updater');
   const current = path.join(cache, 'pending');
   const pendingFiles = readFiles(current);
   const staleFiles = policyHelpers.pickStaleUpdaterFiles(pendingFiles);
@@ -1425,14 +1425,14 @@ function setupAutoUpdate() {
   autoUpdater.on('update-available', ({ version }) => {
     if (announcedVersion === version) return;
     announcedVersion = version;
-    showCustomNotification('CSIN-Tech 업데이트', `새 버전 v${version}이 있습니다. 설정에서 업데이트를 확인해 주세요.`);
+    showCustomNotification('THIRA-ARTROBO 업데이트', `새 버전 v${version}이 있습니다. 설정에서 업데이트를 확인해 주세요.`);
   });
   autoUpdater.on('update-downloaded', (info) => {
     pendingUpdateVersion = info?.version || null;
     updateDownloadedPending = true;
     const isMac = process.platform === 'darwin';
     showCustomNotification(
-      'CSIN-Tech 업데이트 준비됨',
+      'THIRA-ARTROBO 업데이트 준비됨',
       isMac
         ? '설정에서 DMG를 다운로드해 Applications에 다시 설치해 주세요.'
         : '설정에서 설치할 시점을 선택해 주세요.',
@@ -1480,7 +1480,7 @@ app.whenReady().then(() => {
   powerMonitor.on('suspend', notifySystemLock);
 
   if (process.platform === 'win32') {
-    app.setAppUserModelId('com.csintech.message');
+    app.setAppUserModelId('com.thiraartrobo.message');
   }
   if (process.platform === 'darwin' && app.dock) {
     app.dock.setIcon(iconPath);
@@ -1521,11 +1521,11 @@ app.whenReady().then(() => {
                   const v = r?.updateInfo?.version;
                   const current = app.getVersion();
                   const body = v ? (v === current ? '이미 최신 버전입니다.' : `새 버전 ${v}이(가) 있습니다. 설정에서 업데이트를 확인해 주세요.`) : '업데이트 정보를 확인했습니다.';
-                  showCustomNotification('CSIN-Tech', body);
+                  showCustomNotification('THIRA-ARTROBO', body);
                 })
                 .catch((e) => {
                   console.error('Update check failed:', e);
-                  showCustomNotification('CSIN-Tech', '업데이트 확인에 실패했습니다. 네트워크를 확인하거나 나중에 다시 시도해 주세요.');
+                  showCustomNotification('THIRA-ARTROBO', '업데이트 확인에 실패했습니다. 네트워크를 확인하거나 나중에 다시 시도해 주세요.');
                 });
             }
           },

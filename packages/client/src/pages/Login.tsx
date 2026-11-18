@@ -180,7 +180,7 @@ export default function Login() {
       {isElectron && isMac && <MacInsetChromeTools {...chromeTools} />}
       {isElectron && !isMac && (
         <TitleBar
-          title="CSIN-Tech"
+          title="THIRA-ARTROBO"
           showLogo
           showMaximize={false}
           {...chromeTools}

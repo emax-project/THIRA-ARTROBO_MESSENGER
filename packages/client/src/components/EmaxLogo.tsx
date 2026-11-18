@@ -22,7 +22,7 @@ const SIZE_MAP: Record<EmaxLogoSize, number> = {
 const TAGLINE_SCALE = 0.21;
 const TAGLINE_TRACKING_EM = 0.42;
 
-/** CSIN Tech 심볼 (파랑·주황 체인) */
+/** THIRA-ARTROBO 심볼 (파랑·주황 체인) */
 const LOGO_SRC = `${import.meta.env.BASE_URL}emax-logo.png`;
 
 export function EmaxLogo({
@@ -38,7 +38,7 @@ export function EmaxLogo({
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', ...style }}>
       <img
         src={LOGO_SRC}
-        alt="CSIN-Tech"
+        alt="THIRA-ARTROBO"
         width={px}
         height={px}
         style={{ objectFit: 'contain', display: 'block' }}

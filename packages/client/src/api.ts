@@ -2,9 +2,9 @@ import { clearSessionDate, getActiveToken, removeStoredToken } from './utils/aut
 import { evaluateFilePolicy } from './utils/filePolicy';
 
 // 빈 문자열이면 같은 origin 사용(배포 시 같은 서버에서 API·웹 서빙), 없으면 로컬 개발용
-/** 거래처 사외 기본 API (msg.csin.kr → Caddy 리버스 프록시 → 192.168.123.210:3001, HTTPS) */
+/** 거래처 사외 기본 API (175.123.252.228:3001 → Caddy 리버스 프록시 → 192.168.123.210:3001, HTTPS) */
 const DEFAULT_BASE =
-  import.meta.env.VITE_API_URL === '' ? '' : (import.meta.env.VITE_API_URL || 'https://msg.csin.kr');
+  import.meta.env.VITE_API_URL === '' ? '' : (import.meta.env.VITE_API_URL || 'http://175.123.252.228:3001');
 
 const API_URL_KEY = 'emax_api_url';
 

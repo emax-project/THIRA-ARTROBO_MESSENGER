@@ -20,12 +20,12 @@ export default function Privacy() {
         <div className="max-w-2xl mx-auto px-5 py-8 flex flex-col gap-6">
           <div>
             <Link to="/login" className="text-[12px] text-brand hover:underline">← 로그인으로 돌아가기</Link>
-            <h1 className="text-[20px] font-bold text-[#0f172a] mt-2">CSIN-Tech 메신저 개인정보처리방침</h1>
+            <h1 className="text-[20px] font-bold text-[#0f172a] mt-2">THIRA-ARTROBO 메신저 개인정보처리방침</h1>
             <p className="text-[12px] text-[#94a3b8] mt-1">시행일: {EFFECTIVE_DATE}</p>
           </div>
 
           <p className="text-[13px] leading-relaxed text-[#334155]">
-            [회사명 — 사업자등록번호 — 대표자 — 주소] (이하 &apos;회사&apos;)는 CSIN-Tech 메신저(이하 &apos;서비스&apos;)를 제공하며,
+            [회사명 — 사업자등록번호 — 대표자 — 주소] (이하 &apos;회사&apos;)는 THIRA-ARTROBO 메신저(이하 &apos;서비스&apos;)를 제공하며,
             이용자의 개인정보를 중요하게 생각하고 「개인정보 보호법」 등 관련 법령을 준수합니다. 본 방침은 서비스가 PC(Windows/Mac)
             및 모바일(iOS/Android) 앱 형태로 제공될 때 동일하게 적용됩니다.
           </p>

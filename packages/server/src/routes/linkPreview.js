@@ -93,7 +93,7 @@ export function linkPreviewRouter() {
       const timeout = setTimeout(() => controller.abort(), LINK_PREVIEW_TIMEOUT_MS);
       const response = await safeFetch(url, {
         signal: controller.signal,
-        headers: { 'User-Agent': 'CSIN-Tech-LinkPreview/1.0 (com.csintech.message)' },
+        headers: { 'User-Agent': 'THIRA-ARTROBO-LinkPreview/1.0 (com.thiraartrobo.message)' },
       });
       clearTimeout(timeout);
       if (!response.ok) {

@@ -959,7 +959,7 @@ export default function Main() {
   }, []);
   const handleTestNotification = useCallback(() => {
     playNotificationSound(true);
-    window.electronAPI?.showNotification('CSIN-Tech', '알림 테스트입니다.');
+    window.electronAPI?.showNotification('THIRA-ARTROBO', '알림 테스트입니다.');
   }, []);
   const handleLogout = useCallback(() => {
     queryClient.removeQueries({ queryKey: ['rooms'] });
@@ -1237,7 +1237,7 @@ export default function Main() {
       )}
       {hasElectron && isWinElectron() && (
         <TitleBar
-          title="CSIN-Tech"
+          title="THIRA-ARTROBO"
           isDark={isDark}
           showLogo
           showPin

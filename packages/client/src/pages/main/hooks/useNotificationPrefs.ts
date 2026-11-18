@@ -56,7 +56,7 @@ export function useNotificationPrefs(showToast: ShowToast) {
       }
       showToast('알림 일시 중지가 해제되었습니다', 'info');
       try {
-        const title = 'CSIN-Tech';
+        const title = 'THIRA-ARTROBO';
         const body = '알림 일시 중지가 해제되었습니다';
         if (isNotificationPopupEnabled() && window.electronAPI?.showNotification) {
           window.electronAPI.showNotification(title, body);

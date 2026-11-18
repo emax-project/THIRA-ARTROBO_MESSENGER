@@ -47,7 +47,7 @@ jobs:
         env:
           # 거래처 사외 API — HTTPS 전환 완료(Caddy/사내 리버스 프록시 → 192.168.123.210:3001),
           # 2026-10-23 end-to-end 검증 완료 후 평문 http://121.143.3.163:3030 에서 전환
-          VITE_API_URL: https://msg.csin.kr
+          VITE_API_URL: http://175.123.252.228:3001
           # ── 코드 서명 (저장소 Settings > Secrets 에 등록하면 자동으로 서명된다) ──
           # CSC_LINK: 인증서(.pfx / .p12) 파일을 base64로 인코딩한 값 또는 https URL
           # CSC_KEY_PASSWORD: 인증서 비밀번호
@@ -78,7 +78,7 @@ jobs:
       - name: Upload installers to release
         uses: softprops/action-gh-release@v2
         with:
-          name: CSIN-Tech ${{ github.ref_name }}
+          name: THIRA-ARTROBO ${{ github.ref_name }}
           # 공개는 아래 publish 잡이 한다(두 OS 빌드가 모두 성공했을 때만)
           draft: true
           files: |
@@ -106,7 +106,7 @@ jobs:
           assets="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
           echo "$assets"
           missing=0
-          for f in "CSIN-Tech-Setup-${VERSION}.exe" "CSIN-Tech-${VERSION}-arm64.dmg" "CSIN-Tech-${VERSION}-arm64-mac.zip" latest.yml latest-mac.yml; do
+          for f in "THIRA-ARTROBO-Setup-${VERSION}.exe" "THIRA-ARTROBO-${VERSION}-arm64.dmg" "THIRA-ARTROBO-${VERSION}-arm64-mac.zip" latest.yml latest-mac.yml; do
             if ! grep -qxF "$f" <<< "$assets"; then echo "::error::릴리즈에 $f 가 없습니다"; missing=1; fi
           done
           if [ "$missing" -ne 0 ]; then

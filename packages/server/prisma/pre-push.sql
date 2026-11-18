@@ -8,4 +8,18 @@ BEGIN
     ALTER TABLE "Message" ADD COLUMN IF NOT EXISTS "clientMessageId" TEXT;
     CREATE UNIQUE INDEX IF NOT EXISTS "Message_senderId_clientMessageId_key" ON "Message"("senderId", "clientMessageId");
   END IF;
+
+  -- 거래처 외부 키(MSSQL 연동용). 연동을 쓰지 않아도 스키마에는 존재하며 값은 NULL이라 유니크 충돌이 없다.
+  IF to_regclass('"User"') IS NOT NULL THEN
+    ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "externalEmpId" TEXT;
+    CREATE UNIQUE INDEX IF NOT EXISTS "User_externalEmpId_key" ON "User"("externalEmpId");
+  END IF;
+  IF to_regclass('"Company"') IS NOT NULL THEN
+    ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "externalCode" TEXT;
+    CREATE UNIQUE INDEX IF NOT EXISTS "Company_externalCode_key" ON "Company"("externalCode");
+  END IF;
+  IF to_regclass('"Department"') IS NOT NULL THEN
+    ALTER TABLE "Department" ADD COLUMN IF NOT EXISTS "externalCode" TEXT;
+    CREATE UNIQUE INDEX IF NOT EXISTS "Department_companyId_externalCode_key" ON "Department"("companyId", "externalCode");
+  END IF;
 END $$;

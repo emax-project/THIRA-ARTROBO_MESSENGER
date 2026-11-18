@@ -38,3 +38,9 @@ packages/server/prisma/*.db-journal
 # DB 덤프 (데이터 포함, 저장소에 올리지 않음)
 scripts/dump_*.sql
 secrets/
+
+# 서버 자동 배포 산출물
+deploy.log
+.deploy.lock
+server.log
+server.err.log

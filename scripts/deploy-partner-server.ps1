@@ -1,4 +1,4 @@
-# CSIN-Tech — 거래처 GW 서버(Windows, 192.168.123.210) 배포
+# THIRA-ARTROBO — 거래처 GW 서버(Windows, 192.168.123.210) 배포
 # RDP(121.143.3.163:9210) 접속 후 PowerShell(관리자)에서 실행:
 #   Set-ExecutionPolicy Bypass -Scope Process -Force
 #   .\scripts\deploy-partner-server.ps1
