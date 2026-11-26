@@ -39,6 +39,7 @@ import { projectsRouter } from './routes/projects.js';
 import { bookmarksRouter } from './routes/bookmarks.js';
 import { mentionsRouter } from './routes/mentions.js';
 import { memosRouter, startScheduledMemos } from './routes/memos.js';
+import { startMailWatch } from './lib/mailWatch.js';
 import { linkPreviewRouter } from './routes/linkPreview.js';
 import { foldersRouter } from './routes/folders.js';
 import { orgGroupsRouter } from './routes/orgGroups.js';
@@ -267,6 +268,7 @@ async function main() {
   await runMigrations();
   startCleanupJob();
   startScheduledMemos(io);
+  startMailWatch(io);
   const host = process.env.HOST || '0.0.0.0';
   httpServer.listen(PORT, host, () => {
     console.log(`Server running at http://${host}:${PORT}`);
