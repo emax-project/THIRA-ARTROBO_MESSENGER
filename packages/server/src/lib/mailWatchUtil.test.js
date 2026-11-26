@@ -1,69 +1,61 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRecipientIds, buildMailPayload, pickRowsToNotify, shouldEmitOnce } from './mailWatchUtil.js';
+import { displayFrom, buildMailPayload, pickRowsToNotify, dbNowFunction, resolveCursor } from './mailWatchUtil.js';
 
-describe('parseRecipientIds', () => {
-  it('extracts lowercase ids from plain, display-name and multi-recipient strings', () => {
-    assert.deepEqual(parseRecipientIds('Hong@Example.com'), ['hong']);
-    assert.deepEqual(parseRecipientIds('홍길동 <hong@example.com>; kim@example.com, hong@example.com'), ['hong', 'kim']);
-  });
-
-  it('accepts a bare id and ignores empty input', () => {
-    assert.deepEqual(parseRecipientIds('hong'), ['hong']);
-    assert.deepEqual(parseRecipientIds(''), []);
-    assert.deepEqual(parseRecipientIds(null), []);
-    assert.deepEqual(parseRecipientIds(' ; , '), []);
-  });
-
-  it('caps the number of recipients', () => {
-    const many = Array.from({ length: 150 }, (_, i) => `u${i}@x.com`).join(',');
-    assert.equal(parseRecipientIds(many).length, 100);
+describe('displayFrom', () => {
+  it('extracts the display name, falls back to the address, and handles empty input', () => {
+    assert.equal(displayFrom('홍길동 <hong@x.com>'), '홍길동');
+    assert.equal(displayFrom('"Hong Gildong" <hong@x.com>'), 'Hong Gildong');
+    assert.equal(displayFrom('<hong@x.com>'), 'hong@x.com');
+    assert.equal(displayFrom('hong@x.com'), 'hong@x.com');
+    assert.equal(displayFrom('  '), '알 수 없음');
+    assert.equal(displayFrom(null), '알 수 없음');
   });
 });
 
 describe('buildMailPayload', () => {
-  const row = { mm_id: 'AB-1', mm_fromname: '홍길동', mm_fromaddr: 'hong@x.com', mm_subject: '회의 자료' };
+  const row = { mm_id: 'AB-1', mn_from: '김철수 <c@x.com>', mn_subject: '회의 자료' };
 
   it('includes the subject only when allowed', () => {
-    assert.deepEqual(buildMailPayload(row, true), { mailId: 'AB-1', from: '홍길동', subject: '회의 자료' });
+    assert.deepEqual(buildMailPayload(row, true), { mailId: 'AB-1', from: '김철수', subject: '회의 자료' });
     assert.equal(buildMailPayload(row, false).subject, '');
   });
 
-  it('falls back to the address and truncates long subjects', () => {
-    assert.equal(buildMailPayload({ ...row, mm_fromname: ' ' }, true).from, 'hong@x.com');
-    assert.equal(buildMailPayload({ mm_id: 'x' }, true).from, '알 수 없음');
-    const long = buildMailPayload({ ...row, mm_subject: 'a'.repeat(300) }, true).subject;
+  it('truncates long subjects', () => {
+    const long = buildMailPayload({ ...row, mn_subject: 'a'.repeat(300) }, true).subject;
     assert.equal(long.length, 121);
     assert.ok(long.endsWith('…'));
   });
 });
 
 describe('pickRowsToNotify', () => {
-  it('skips already seen mails and stale mails, and remembers what it saw', () => {
-    const seen = new Set();
+  it('drops stale rows and rows without a recipient', () => {
     const rows = [
-      { mm_id: 'A', age_sec: 5 },
-      { mm_id: 'B', age_sec: 5000 },
-      { mm_id: 'C', age_sec: 10 },
+      { mn_id: 1, du_userId: 'hong', age_sec: 5 },
+      { mn_id: 2, du_userId: 'kim', age_sec: 5000 },
+      { mn_id: 3, du_userId: null, age_sec: 5 },
+      { mn_id: 4, du_userId: 'lee', age_sec: 600 },
     ];
-    assert.deepEqual(pickRowsToNotify(rows, seen, 600).map((r) => r.mm_id), ['A', 'C']);
-    assert.deepEqual(pickRowsToNotify(rows, seen, 600), []);
-  });
-
-  it('matches ids case-insensitively', () => {
-    const seen = new Set(['abc']);
-    assert.deepEqual(pickRowsToNotify([{ mm_id: 'ABC', age_sec: 1 }], seen, 600), []);
+    assert.deepEqual(pickRowsToNotify(rows, 600).map((r) => r.mn_id), [1, 4]);
   });
 });
 
-describe('shouldEmitOnce', () => {
-  it('blocks duplicates for the same user within the window but not other users or later', () => {
-    const recent = new Map();
-    const p = { from: '홍길동', subject: '회의' };
-    assert.equal(shouldEmitOnce(recent, 'u1', p, 1000), true);
-    assert.equal(shouldEmitOnce(recent, 'u1', p, 2000), false);
-    assert.equal(shouldEmitOnce(recent, 'u2', p, 2000), true);
-    assert.equal(shouldEmitOnce(recent, 'u1', { ...p, subject: '다른 제목' }, 2000), true);
-    assert.equal(shouldEmitOnce(recent, 'u1', p, 1000 + 120_000), true);
+describe('dbNowFunction', () => {
+  it('defaults to UTC and only switches to local when asked', () => {
+    assert.equal(dbNowFunction(undefined), 'GETUTCDATE()');
+    assert.equal(dbNowFunction('utc'), 'GETUTCDATE()');
+    assert.equal(dbNowFunction('LOCAL'), 'GETDATE()');
+    assert.equal(dbNowFunction("x'; DROP TABLE a;--"), 'GETUTCDATE()');
+  });
+});
+
+describe('resolveCursor', () => {
+  it('starts from the current max, keeps a valid saved cursor, and repairs a reset table', () => {
+    assert.equal(resolveCursor(undefined, 19211), 19211);
+    assert.equal(resolveCursor(null, 19211), 19211);
+    assert.equal(resolveCursor('19000', 19211), 19000);
+    assert.equal(resolveCursor('25000', 19211), 19211);
+    assert.equal(resolveCursor('abc', 19211), 19211);
+    assert.equal(resolveCursor('5', null), 0);
   });
 });

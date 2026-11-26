@@ -1,66 +1,46 @@
 /** 새 메일 알림의 순수 로직(DB·소켓 없이 테스트 가능). */
-import { emailLocalPart } from './ssoToken.js';
 
-const SEEN_LIMIT = 1000;
-const MAX_RECIPIENTS = 100;
 const SUBJECT_MAX = 120;
 
-/**
- * 받는 주소 문자열("a@x.com; 홍길동 <b@x.com>, c")에서 아이디(@ 앞부분)만 뽑는다.
- * 소문자·중복 제거. 메신저 사용자의 아이디는 이메일의 @ 앞부분이다.
- */
-export function parseRecipientIds(sentTo) {
-  const out = new Set();
-  for (const part of String(sentTo || '').split(/[;,]/)) {
-    const m = part.match(/<([^>]+)>/);
-    const addr = (m ? m[1] : part).trim();
-    if (!addr) continue;
-    const id = emailLocalPart(addr).trim().toLowerCase();
-    if (id) out.add(id);
-  }
-  return [...out].slice(0, MAX_RECIPIENTS);
+/** "홍길동 <hong@x.com>" → "홍길동", 이름이 없으면 주소 그대로, 비어 있으면 '알 수 없음'. */
+export function displayFrom(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '알 수 없음';
+  const m = s.match(/^"?([^"<]*?)"?\s*<([^>]*)>\s*$/);
+  if (m) return m[1].trim() || m[2].trim() || '알 수 없음';
+  return s;
 }
 
 /** 소켓으로 보낼 알림 내용. showSubject가 false면 제목은 보내지 않는다. */
 export function buildMailPayload(row, showSubject) {
-  const from = String(row.mm_fromname || '').trim() || String(row.mm_fromaddr || '').trim() || '알 수 없음';
-  const subject = String(row.mm_subject || '').trim();
+  const subject = String(row.mn_subject || '').trim();
   return {
     mailId: String(row.mm_id),
-    from,
+    from: displayFrom(row.mn_from),
     subject: showSubject ? (subject.length > SUBJECT_MAX ? `${subject.slice(0, SUBJECT_MAX)}…` : subject) : '',
   };
 }
 
 /**
- * 이번에 알릴 행만 고른다. 이미 처리한 메일(seen)과, 서버가 오래 꺼져 있다가 켜졌을 때
- * 쏟아지는 오래된 메일(maxAgeSec 초과)은 알리지 않는다.
+ * 이번에 알릴 행만 고른다. 서버가 오래 꺼져 있다가 켜졌을 때 쏟아지는
+ * 오래된 메일(maxAgeSec 초과)과 수신자가 없는 행은 알리지 않는다.
  */
-export function pickRowsToNotify(rows, seen, maxAgeSec) {
-  const fresh = [];
-  for (const row of rows) {
-    const id = String(row.mm_id).toLowerCase();
-    if (seen.has(id)) continue;
-    seen.add(id);
-    if (Number(row.age_sec) > maxAgeSec) continue;
-    fresh.push(row);
-  }
-  while (seen.size > SEEN_LIMIT) seen.delete(seen.values().next().value);
-  return fresh;
+export function pickRowsToNotify(rows, maxAgeSec) {
+  return rows.filter((row) => row.du_userId && Number(row.age_sec) <= maxAgeSec);
+}
+
+/** DB 시각 기준 함수. 메일 서버가 UTC로 저장하므로 기본은 utc. 허용 값 외에는 utc. */
+export function dbNowFunction(mode) {
+  return String(mode || '').trim().toLowerCase() === 'local' ? 'GETDATE()' : 'GETUTCDATE()';
 }
 
 /**
- * 같은 사용자에게 같은 메일(보낸 사람+제목)을 짧은 시간 안에 두 번 알리지 않는다.
- * 메일 서버가 받는 사람마다 행을 따로 저장하는 구조여도 팝업이 중복되지 않게 하는 안전장치다.
- * @returns {boolean} 알려도 되면 true (그리고 기록한다)
+ * 저장된 기준 번호를 검증한다. 숫자가 아니거나, 테이블이 초기화되어 현재 최대 번호보다
+ * 커진 경우에는 현재 최대 번호로 되돌린다(그렇지 않으면 새 메일을 영영 못 읽는다).
  */
-export function shouldEmitOnce(recent, userId, payload, now, ttlMs = 120_000) {
-  const key = `${userId}|${payload.from}|${payload.subject}`;
-  const at = recent.get(key);
-  if (at !== undefined && now - at < ttlMs) return false;
-  recent.set(key, now);
-  if (recent.size > 2000) {
-    for (const [k, t] of recent) if (now - t >= ttlMs) recent.delete(k);
-  }
-  return true;
+export function resolveCursor(saved, maxId) {
+  const max = Number.isFinite(Number(maxId)) ? Number(maxId) : 0;
+  const n = Number(saved);
+  if (saved === null || saved === undefined || saved === '' || !Number.isInteger(n) || n < 0) return max;
+  return n > max ? max : n;
 }
